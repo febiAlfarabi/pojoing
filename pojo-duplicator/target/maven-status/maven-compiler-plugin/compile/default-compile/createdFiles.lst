@@ -1,0 +1,7 @@
+com/alfarabi/duplicator/annotation/DtoField.class
+com/alfarabi/duplicator/processor/FieldInfo.class
+com/alfarabi/duplicator/processor/JavaBuilderProcessor.class
+com/alfarabi/duplicator/annotation/Dto.class
+com/alfarabi/duplicator/processor/JMethod.class
+com/alfarabi/duplicator/model/Field.class
+com/alfarabi/duplicator/processor/JClass.class

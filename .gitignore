@@ -1,0 +1,12 @@
+.idea
+.pojoing.iml
+
+/pojo-duplicator/.idea
+/pojo-duplicator/target
+/pojo-duplicator/.pojo-duplicator.iml
+
+/pojo-user/.idea
+/pojo-user/target
+/pojo-user/.pojo-user.iml
+
+

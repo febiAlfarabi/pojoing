@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="generate-code-processor" target="1.8" />
+      <module name="pojo-duplicator" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="generate-code-processor" options="-proc:none" />
+      <module name="pojo-duplicator" options="-proc:none" />
+    </option>
+  </component>
+</project>
