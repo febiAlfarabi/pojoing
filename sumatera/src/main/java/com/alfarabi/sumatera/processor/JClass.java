@@ -1,4 +1,4 @@
-package com.alfarabi.duplicator.processor;
+package com.alfarabi.sumatera.processor;
 
 import java.util.*;
 

@@ -1,24 +1,23 @@
-package com.alfarabi.duplicator.processor;
+package com.alfarabi.sumatera.processor;
 
-import com.alfarabi.duplicator.annotation.Dto;
 import com.squareup.javapoet.*;
+import hindia.Sumatera;
 import io.toolisticon.annotationprocessortoolkit.ToolingProvider;
 import io.toolisticon.annotationprocessortoolkit.tools.TypeUtils;
+import org.modelmapper.ModelMapper;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.*;
 
-@SupportedAnnotationTypes({"com.alfarabi.duplicator.annotation.Dto"})
+@SupportedAnnotationTypes({"hindia.*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class JavaBuilderProcessor extends AbstractProcessor {
 
@@ -39,17 +38,17 @@ public class JavaBuilderProcessor extends AbstractProcessor {
             return false;
         }
 
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Dto.class);
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Sumatera.class);
 
         List<String> uniqueIdCheckList = new ArrayList<>();
 
         for (Element element : elements) {
-            Dto dto = element.getAnnotation(Dto.class);
+            Sumatera sumatera = element.getAnnotation(Sumatera.class);
             info("Class yang dianotasi ### "+element.getSimpleName(), element);
             boolean error = false;
             String className = element.getSimpleName()+CLASS_SUFFIX;
-            if(!dto.alias().isEmpty()){
-                className = dto.alias();
+            if(!sumatera.alias().isEmpty()){
+                className = sumatera.alias();
             }
 
             if (uniqueIdCheckList.contains(className)) {
@@ -117,19 +116,46 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         info("INHERITANCE MIRROR ### "+inheritanceMirror.toString(), element);
         if(inheritanceMirror!=null && !inheritanceMirror.toString().equals("java.lang.Object")){
             TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
-            Boolean annotated = inheritanceElement.getAnnotation(Dto.class)!=null;
+            Boolean annotated = inheritanceElement.getAnnotation(Sumatera.class)!=null;
             if(!annotated){
                 error("Class yang diinheritance / diextends harus di anotasi dengan @Dto", element);
                 return;
             }
-            typeSpecBuilder.superclass(ClassName.bestGuess(getTypeName(inheritanceElement)+"Dto"));
+            Sumatera sumatera = inheritanceElement.getAnnotation(Sumatera.class);
+            String inheritanceClassName = inheritanceElement.getSimpleName()+CLASS_SUFFIX;
+            if(!sumatera.alias().isEmpty()){
+                className = sumatera.alias();
+            }
+
+            typeSpecBuilder.superclass(ClassName.bestGuess(inheritanceClassName));
+        }
+        typeSpecBuilder.addSuperinterface(Serializable.class);
+        for (AnnotationMirror annotationMirror : typeElement.getAnnotationMirrors()) {
+            if(annotationMirror.getAnnotationType().toString().contains("ToString")){
+                typeSpecBuilder.addAnnotation(AnnotationSpec.get(annotationMirror));
+            }
+            if(annotationMirror.getAnnotationType().toString().contains("EqualsAndHashCode")){
+                typeSpecBuilder.addAnnotation(AnnotationSpec.get(annotationMirror));
+            }
         }
 
         typeSpecBuilder = typeSpecBuilder.addModifiers(modifiers)
+                .addField(FieldSpec.builder(ModelMapper.class, "mapper", Modifier.STATIC).build())
+                .addStaticBlock(CodeBlock.of("mapper = new $N();", ModelMapper.class.getSimpleName()))
+                .addFields(fieldSpecSet)
                 .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC).build())
                 .addMethod(methodSpec)
-                .addFields(fieldSpecSet)
-                .addMethods(methodSpecSet);
+                .addMethods(methodSpecSet)
+                .addMethod(
+                        MethodSpec.methodBuilder("from").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                        .addParameter(TypeName.get(element.asType()), getTypeName(element))
+                                .returns(ClassName.get(getPackageName(element), className))
+                                .addStatement("return mapper.map($N, $N)", getTypeName(element), className+".class").build())
+                .addMethod(
+                        MethodSpec.methodBuilder("to").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                                .addParameter(ClassName.get(getPackageName(element), className), getTypeName(element).toLowerCase())
+                                .returns(TypeName.get(element.asType()))
+                                .addStatement("return mapper.map($N, $N)", getTypeName(element).toLowerCase(), element.getSimpleName()+".class").build());
 
         TypeSpec typeSpec = typeSpecBuilder.build();
 

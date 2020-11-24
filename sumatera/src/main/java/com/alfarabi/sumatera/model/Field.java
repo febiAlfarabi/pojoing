@@ -1,11 +1,11 @@
-package com.alfarabi.duplicator.model;
+package com.alfarabi.sumatera.model;
 
+import hindia.Sumatera;
+import hindia.Nias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.alfarabi.duplicator.annotation.Dto;
-import com.alfarabi.duplicator.annotation.DtoField;
 import com.squareup.javapoet.AnnotationSpec;
 
 import javax.lang.model.element.Modifier;
@@ -16,7 +16,7 @@ import java.util.List;
 public class Field {
 
     public static Class[] ACCEPTABLE_ANNOTATIONS = {JsonIgnore.class, JsonIgnoreProperties.class, JsonSerialize.class, JsonDeserialize.class};
-    public Class[] FILTERED_ANNOTATIONS = {Dto.class, DtoField.class};
+    public Class[] FILTERED_ANNOTATIONS = {Sumatera.class, Nias.class};
 
 
     String type ;

@@ -1,21 +1,26 @@
-package com.alfarabi.example.model;
+package com.alfarabi.user.model;
 
 
-import com.alfarabi.duplicator.annotation.Dto;
-import com.alfarabi.duplicator.annotation.DtoField;
+import hindia.Sumatera;
+import hindia.Nias;
+;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Date;
 
-@Dto
+@Sumatera
+@ToString(of = "id", callSuper = true)
+@EqualsAndHashCode(callSuper = true, of = "id")
 public class Person extends Base {
 
     @JsonIgnoreProperties({"person","person1","person2"})
     @JsonIgnore
     String name ;
 
-    @DtoField(ignore = true)
+    @Nias(ignore = true)
     String address ;
 
     @JsonIgnore

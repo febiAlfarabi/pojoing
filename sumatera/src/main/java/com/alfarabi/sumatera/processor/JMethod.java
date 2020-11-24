@@ -1,4 +1,4 @@
-package com.alfarabi.duplicator.processor;
+package com.alfarabi.sumatera.processor;
 
 public class JMethod {
     private StringBuilder builder = new StringBuilder();

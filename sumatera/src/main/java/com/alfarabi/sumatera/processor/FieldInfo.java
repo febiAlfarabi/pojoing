@@ -1,8 +1,8 @@
-package com.alfarabi.duplicator.processor;
+package com.alfarabi.sumatera.processor;
 
 
-import com.alfarabi.duplicator.annotation.DtoField;
-import com.alfarabi.duplicator.model.Field;
+import hindia.Nias;
+import com.alfarabi.sumatera.model.Field;
 import com.squareup.javapoet.AnnotationSpec;
 
 import javax.lang.model.element.*;
@@ -45,10 +45,13 @@ public class FieldInfo {
             if(variableElement.getModifiers().contains(Modifier.FINAL) || variableElement.getModifiers().contains(Modifier.STATIC)){
                 continue;
             }
-            if (variableElement.getAnnotation(DtoField.class) != null) {
-                DtoField dtoField = variableElement.getAnnotation(DtoField.class);
-                if(dtoField.ignore()){
+            if (variableElement.getAnnotation(Nias.class) != null) {
+                Nias nias = variableElement.getAnnotation(Nias.class);
+                if(nias.ignore()){
                     continue;
+                }
+                if(!nias.alias().isEmpty()){
+                    variableName = nias.alias();
                 }
             }
             mandatoryFields.add(variableName);
