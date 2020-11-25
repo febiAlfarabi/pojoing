@@ -101,7 +101,7 @@
                                 <relocation>
                                     <pattern>io.toolisticon.annotationprocessortoolkit</pattern>
                                     <shadedPattern>
-                                        com.alfarabi._3rdparty.io.toolisticon.annotationprocessortoolkit
+                                        io.github.febialfarabi._3rdparty.io.toolisticon.annotationprocessortoolkit
                                     </shadedPattern>
                                 </relocation>
                             </relocations>
