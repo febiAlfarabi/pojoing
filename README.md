@@ -44,7 +44,12 @@ The above code will automatically generate a duplicate java and also compiled cl
 	    }
     }
 
-By Default a class uses @Sumatera for automatically generate the duplicate class pojo and its make assume that all of field are should be generated. In special situation, where you need to ignore some field you can use @Nias(ignore = true) on your field.
+By Default a class uses @Sumatera for automatically generate the duplicate class pojo and its assume that all of class field are should be generated. 
+
+In special situation, where you need to ignore some field you can use @Nias(ignore=true) on the field.
+
+    @Nias(ignore = true)
+    String secured ;
 
 There is also **2 static return methods** generated in your pojo class
 
