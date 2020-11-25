@@ -1,4 +1,4 @@
-package com.alfarabi.user.model;
+package io.github.febialfarabi.model;
 
 
 import hindia.Sumatera;

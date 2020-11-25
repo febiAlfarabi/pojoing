@@ -1,4 +1,4 @@
-package com.alfarabi.sumatera.processor;
+package io.github.febialfarabi.processor;
 
 import java.util.*;
 

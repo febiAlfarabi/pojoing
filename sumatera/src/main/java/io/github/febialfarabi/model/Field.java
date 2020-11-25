@@ -1,4 +1,4 @@
-package com.alfarabi.sumatera.model;
+package io.github.febialfarabi.model;
 
 import hindia.Sumatera;
 import hindia.Nias;

@@ -1,4 +1,4 @@
-package com.alfarabi.sumatera.processor;
+package io.github.febialfarabi.processor;
 
 public class JMethod {
     private StringBuilder builder = new StringBuilder();

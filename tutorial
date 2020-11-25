@@ -1,0 +1,42 @@
+#### Create Repository
+#### https://stackoverflow.com/questions/28846802/how-to-manually-publish-jar-to-maven-central
+
+1) Create your Jira account : Signup Sonatype
+
+2) Create a new project ticket (to claim your workspace) : Create new project ticket
+
+3) Generate a PGP Signature
+
+gpg2 --gen-key
+....
+gpg: key YOUR_KEY_ID marked as ultimately trusted
+...
+4) Distributing your public key
+
+gpg2 --keyserver hkp://pool.sks-keyservers.net --send-keys YOUR_KEY_ID
+
+5) Update your ~.m2/settings.xml
+
+6) Update your project pom.xml
+
+7) Run Maven
+
+Maven will ask you for your passphrase
+
+mvn clean deploy
+
+8) Comment your Jira ticket
+
+This will trigger the synchronization with central for your group id.
+
+
+#### Installing GPG MAC
+#### https://cerb.ai/guides/mail/gpg-setup-on-mac/#install-gpg
+
+brew install gpg pinentry-mac
+
+### Fix The Java Doc Failed
+### https://github.com/assertj/assertj-core/issues/1403
+
+### Fix the GPG Sign Failed
+### https://stackoverflow.com/questions/53992950/maven-gpg-plugin-failing-with-inappropriate-ioctl-for-device-when-running-unde

@@ -1,4 +1,4 @@
-package com.alfarabi.sumatera.processor;
+package io.github.febialfarabi.processor;
 
 import com.squareup.javapoet.*;
 import hindia.Sumatera;

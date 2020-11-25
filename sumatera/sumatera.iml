@@ -13,6 +13,15 @@
     <orderEntry type="library" name="Maven: io.toolisticon.annotationprocessortoolkit:annotationprocessor:0.14.2" level="project" />
     <orderEntry type="library" name="Maven: io.toolisticon.annotationprocessortoolkit:common:0.14.2" level="project" />
     <orderEntry type="library" name="Maven: io.toolisticon.annotationprocessortoolkit:templating:0.14.2" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: com.sun:tools:1.7">
+        <CLASSES>
+          <root url="jar:///Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/lib/tools.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="library" scope="TEST" name="Maven: io.toolisticon.compiletesting:compiletesting:0.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: io.toolisticon.compiletesting:extension-api:0.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: io.toolisticon.compiletesting:extension-plainjava:0.8.0" level="project" />

@@ -14,6 +14,15 @@
     <orderEntry type="library" name="Maven: io.toolisticon.annotationprocessortoolkit:annotationprocessor:0.14.2" level="project" />
     <orderEntry type="library" name="Maven: io.toolisticon.annotationprocessortoolkit:common:0.14.2" level="project" />
     <orderEntry type="library" name="Maven: io.toolisticon.annotationprocessortoolkit:templating:0.14.2" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: com.sun:tools:1.7">
+        <CLASSES>
+          <root url="jar:///Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/lib/tools.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntry type="library" name="Maven: com.squareup:javapoet:1.13.0" level="project" />
     <orderEntry type="library" name="Maven: org.modelmapper:modelmapper:2.3.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.5" level="project" />

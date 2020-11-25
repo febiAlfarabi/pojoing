@@ -1,8 +1,8 @@
-package com.alfarabi.sumatera.processor;
+package io.github.febialfarabi.processor;
 
 
 import hindia.Nias;
-import com.alfarabi.sumatera.model.Field;
+import io.github.febialfarabi.model.Field;
 import com.squareup.javapoet.AnnotationSpec;
 
 import javax.lang.model.element.*;
