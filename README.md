@@ -1,7 +1,7 @@
 
 # @Sumatera
 
-Model converter from **ORM class to regular pojo clas**s, the ORM term is a modelling class that doesn't like regular pojo, such like @Entity from JPA/Hibernate and so on.
+Model converter from **ORM class to regular pojo class**, the ORM term is a modelling class that doesn't like regular pojo, such like @Entity from JPA/Hibernate and so on.
 
 It can be used for mapping regular object, post data in request body where you cant put ORM class directly such like a project where use spring java for building application, and so on.
 
