@@ -46,12 +46,12 @@ The above code will automatically generate a duplicate java and also compiled cl
 
 By Default a class uses @Sumatera for automatically generate the duplicate class pojo and its make assume that all of field are should be generated. In special situation, where you need to ignore some field you can use @Nias(ignore = true) on your field.
 
-There is also **2 static return method** on your generated pojo class
+There is also **2 static return methods** generated in your pojo class
 
     PersonORM personOrm = PersonDto.to(personDto);
     PersonDto personDto = PersonDto.from(personOrm);
     
-The above methods would be automatically convert your type of object between ORM and Dto/Pojo
+The above methods would be automatically convert your type of object between any ORM from-to Dto/Pojo
 
 > Happy Coding..!!
 
