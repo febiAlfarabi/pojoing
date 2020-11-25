@@ -13,8 +13,11 @@ Example
 	@Table
 	@Sumatera
     public class Person{
+    
 	    String name ;
+	
 	    String address ;
+	
 	    @Nias(ignore = true)
 	    String secured;
     }
@@ -22,8 +25,11 @@ Example
 The above code will automatically generate a duplicate java and also compiled class called **PersonDto** where you can find inside the **generated-source** folder inside your maven project.
 
     public class PersonDto{
+	
 	    String name ;
+	
 	    String address ;
+	
 	    public String getName() {  
 		    return this.name;  
 	    }
