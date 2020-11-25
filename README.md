@@ -4,4 +4,4 @@ Model converter from ORM class to regular pojo class, ORM means a pojo that does
 
 It can be used for mapping, post data in request body where the project uses spring java for building application
 
-You don't need anymore to create duplicate Dto / Pojo class which represent ORM class, just write your ORM class and annotate it with @Dto, then the regular pojo class would be generated for you. 
+You don't need anymore to create duplicate Dto / Pojo class which represent ORM class, just write your ORM class and annotate it with @Sumatera, then the regular pojo class would be generated for you. 
