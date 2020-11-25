@@ -22,7 +22,7 @@ Example
 	    String secured;
     }
 
-The above code will automatically generate a duplicate java and also compiled class called **PersonDto** where you can find inside the **generated-source** folder inside your maven project.
+The above code will automatically generate a duplicate java and also compiled class called **PersonDto** where you can find in the **generated-source** folder inside your maven project.
 
     public class PersonDto{
 	
