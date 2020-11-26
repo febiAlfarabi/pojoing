@@ -1,6 +1,7 @@
 package io.github.febialfarabi.model;
 
-
+import io.github.febialfarabi.model.person.Person;
+import io.github.febialfarabi.model.person.PersonDto;
 
 public class Main {
 

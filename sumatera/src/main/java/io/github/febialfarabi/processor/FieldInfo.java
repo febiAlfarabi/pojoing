@@ -72,20 +72,24 @@ public class FieldInfo {
                 field.setImportPackage(className);
                 field.setTypeName(ClassName.bestGuess(className));
             }else{
-                if(CoreUtils.isObjectOfClass(variableElement) && Collection.class.isAssignableFrom(Class.forName(CoreUtils.getFullname(variableElement)))){
-                    field.setTypeName(TypeName.get(variableElement.asType()));
-                    isSumatera = false ;
-                    for (Element classElement : elements) {
-                        if(classElement.asType().toString().equalsIgnoreCase(CoreUtils.getGenericTypeName(variableElement))){
-                            isSumatera = true ;
-                            break;
+                try{
+                    if(CoreUtils.isObjectOfClass(variableElement) && Collection.class.isAssignableFrom(Class.forName(CoreUtils.getFullname(variableElement)))){
+                        field.setTypeName(TypeName.get(variableElement.asType()));
+                        isSumatera = false ;
+                        for (Element classElement : elements) {
+                            if(classElement.asType().toString().equalsIgnoreCase(CoreUtils.getGenericTypeName(variableElement))){
+                                isSumatera = true ;
+                                break;
+                            }
                         }
+                        if(isSumatera){
+                            field.setReplaceImport(CoreUtils.getGenericTypeName(variableElement));
+                            field.setReplaceGeneric(CoreUtils.getNormalGeneric(variableElement));
+                        }
+                    }else{
+                        field.setTypeName(TypeName.get(variableElement.asType()));
                     }
-                    if(isSumatera){
-                        field.setReplaceImport(CoreUtils.getGenericTypeName(variableElement));
-                        field.setReplaceGeneric(CoreUtils.getNormalGeneric(variableElement));
-                    }
-                }else{
+                }catch (Exception e){
                     field.setTypeName(TypeName.get(variableElement.asType()));
                 }
             }
