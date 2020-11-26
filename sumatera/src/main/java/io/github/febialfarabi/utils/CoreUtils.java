@@ -18,19 +18,19 @@ public class CoreUtils {
      * Checking if the class to be generated is a valid java identifier
      * Also the name should be not same as the target interface
      */
-    public static boolean checkIdValidity(String name, Element e) {
-        for (int i = 0; i < name.length(); i++) {
-            if (i == 0 ? !Character.isJavaIdentifierStart(name.charAt(i)) : !Character.isJavaIdentifierPart(name.charAt(i))) {
-               new Exception("AutoImplement#as should be valid java identifier for code generation: " + name).printStackTrace();
-               return false ;
-            }
-        }
-        if (name.equals(CoreUtils.getTypeName(e))) {
-            new Exception("AutoImplement#as should be different than the Interface name ").printStackTrace();
-            return false ;
-        }
-        return true;
-    }
+//    public static boolean checkIdValidity(String name, Element e) {
+//        for (int i = 0; i < name.length(); i++) {
+//            if (i == 0 ? !Character.isJavaIdentifierStart(name.charAt(i)) : !Character.isJavaIdentifierPart(name.charAt(i))) {
+//               new Exception("AutoImplement#as should be valid java identifier for code generation: " + name).printStackTrace();
+//               return false ;
+//            }
+//        }
+//        if (name.equals(CoreUtils.getTypeName(e))) {
+//            new Exception("AutoImplement#as should be different than the Interface name ").printStackTrace();
+//            return false ;
+//        }
+//        return true;
+//    }
 
     public static String getPackageName(Element element) {
         List<PackageElement> packageElements = ElementFilter.packagesIn(Arrays.asList(element.getEnclosingElement()));
