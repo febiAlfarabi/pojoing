@@ -59,6 +59,16 @@ There is also **2 static return methods** generated in your pojo class
     
 The above methods would be automatically convert your type of object between any ORM from-to Dto/Pojo
 
+
+## How To Use
+Add this dependency maven project
+
+    <dependency>  
+	    <groupId>io.github.febialfarabi</groupId>
+	    <artifactId>sumatera</artifactId>
+	    <version>1.0.6</version>
+    </dependency>
+
 > Happy Coding..!!
 
 Thanks for
