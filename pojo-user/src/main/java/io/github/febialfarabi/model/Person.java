@@ -2,34 +2,23 @@ package io.github.febialfarabi.model;
 
 
 import hindia.Sumatera;
-import hindia.Nias;
-;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Date;
+;import java.util.ArrayList;
+import java.util.List;
 
 @Sumatera
-@ToString(of = "id", callSuper = true)
-@EqualsAndHashCode(callSuper = true, of = "id")
-public class Person extends Base {
+@ToString(of = "address", callSuper = true)
+public class Person {
 
-    @JsonIgnoreProperties({"person","person1","person2"})
-    @JsonIgnore
-    String name ;
+    Address address ;
 
-    @Nias(ignore = true)
-    String address ;
+    List<Car> cars = new ArrayList<>();
 
-    @JsonIgnore
-    Date created ;
+    boolean primitiveBoolean;
 
-    Boolean verified ;
+    Boolean objectBoolean;
 
-    boolean locked ;
 
-    int count ;
 
 }

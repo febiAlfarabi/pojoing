@@ -1,16 +1,22 @@
 package io.github.febialfarabi.processor;
 
 
+import com.squareup.javapoet.*;
 import hindia.Nias;
+import hindia.Sumatera;
 import io.github.febialfarabi.model.Field;
-import com.squareup.javapoet.AnnotationSpec;
+import io.github.febialfarabi.utils.CoreUtils;
+import io.toolisticon.annotationprocessortoolkit.tools.TypeUtils;
+import io.toolisticon.annotationprocessortoolkit.tools.generics.GenericType;
+import io.toolisticon.annotationprocessortoolkit.tools.generics.GenericTypeKind;
+import io.toolisticon.annotationprocessortoolkit.tools.generics.GenericTypeParameter;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import javax.tools.Diagnostic;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +41,7 @@ public class FieldInfo {
         return mandatoryFields;
     }
 
-    public static FieldInfo get(Element element) throws Exception{
+    public static FieldInfo get(ProcessingEnvironment processingEnvironment, Element element) throws Exception{
         LinkedHashMap<String, Field> fields = new LinkedHashMap<>();
         List<String> mandatoryFields = new ArrayList<>();
 
@@ -50,44 +56,52 @@ public class FieldInfo {
                 if(nias.ignore()){
                     continue;
                 }
-                if(!nias.alias().isEmpty()){
-                    variableName = nias.alias();
-                }
             }
             mandatoryFields.add(variableName);
             Field field = new Field();
-            field.setType(variableElement.asType().toString());
-            field.setTypeMirror(variableElement.asType());
+            Set<Element> elements = CoreUtils.annotatedElements;
+            boolean isSumatera = false ;
+            for (Element classElement : elements) {
+                if(classElement.asType().toString().equalsIgnoreCase(variableElement.asType().toString())){
+                    isSumatera = true ;
+                    break;
+                }
+            }
+            if(isSumatera){
+                String className = variableElement.asType().toString()+CoreUtils.CLASS_SUFFIX;
+                field.setImportPackage(className);
+                field.setTypeName(ClassName.bestGuess(className));
+            }else{
+                if(CoreUtils.isObjectOfClass(variableElement) && Collection.class.isAssignableFrom(Class.forName(CoreUtils.getFullname(variableElement)))){
+                    field.setTypeName(TypeName.get(variableElement.asType()));
+                    isSumatera = false ;
+                    for (Element classElement : elements) {
+                        if(classElement.asType().toString().equalsIgnoreCase(CoreUtils.getGenericTypeName(variableElement))){
+                            isSumatera = true ;
+                            break;
+                        }
+                    }
+                    if(isSumatera){
+                        field.setReplaceImport(CoreUtils.getGenericTypeName(variableElement));
+                        field.setReplaceGeneric(CoreUtils.getNormalGeneric(variableElement));
+                    }
+                }else{
+                    field.setTypeName(TypeName.get(variableElement.asType()));
+                }
+            }
+
             field.setModifiers(variableElement.getModifiers().stream().collect(Collectors.toList()));
-            for (Class acceptableAnnotation : Field.ACCEPTABLE_ANNOTATIONS) {
-                if(variableElement.getAnnotation(acceptableAnnotation)!=null){
-                    field.getAnnotationSpecs().add(AnnotationSpec.get(variableElement.getAnnotation(acceptableAnnotation)));
+            for (String acceptableAnnotation : Field.ACCEPTABLE_ANNOTATIONS) {
+                for (AnnotationMirror annotationMirror : variableElement.getAnnotationMirrors()) {
+                    if(annotationMirror.getAnnotationType().toString().contains(acceptableAnnotation)){
+                        field.getAnnotationSpecs().add(AnnotationSpec.get(annotationMirror));
+                    }
                 }
             }
             fields.put(variableName, field);
         }
 
         return new FieldInfo(fields, mandatoryFields);
-    }
-
-    private static String methodToFieldName(String methodName) {
-        if (methodName.startsWith("get")) {
-            String str = methodName.substring(3);
-            if (str.length() == 0) {
-                return null;
-            } else if (str.length() == 1) {
-                return str.toLowerCase();
-            } else {
-                return Character.toLowerCase(str.charAt(0)) + str.substring(1);
-            }
-        }
-        return null;
-    }
-
-    private static String getTypeName(Element e) {
-        TypeMirror typeMirror = e.asType();
-        String[] split = typeMirror.toString().split("\\.");
-        return split.length > 0 ? split[split.length - 1] : null;
     }
 
 }

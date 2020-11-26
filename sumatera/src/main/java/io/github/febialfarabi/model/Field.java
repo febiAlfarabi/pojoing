@@ -1,44 +1,36 @@
 package io.github.febialfarabi.model;
 
-import hindia.Sumatera;
-import hindia.Nias;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.TypeName;
+import hindia.Nias;
+import hindia.Sumatera;
+import io.github.febialfarabi.utils.CoreUtils;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Field {
 
-    public static Class[] ACCEPTABLE_ANNOTATIONS = {JsonIgnore.class, JsonIgnoreProperties.class, JsonSerialize.class, JsonDeserialize.class};
-    public Class[] FILTERED_ANNOTATIONS = {Sumatera.class, Nias.class};
+    public static final String[] ACCEPTABLE_ANNOTATIONS = {"JsonIgnore", "JsonIgnoreProperties", "JsonProperty", "JsonSerialize", "JsonDeserialize", "SerializedName"};
+    public static final Class[] FILTERED_ANNOTATIONS = {Sumatera.class, Nias.class};
 
+    String importPackage ;
+    String replaceImport ;
+    String replaceGeneric ;
 
-    String type ;
-    TypeMirror typeMirror ;
+    TypeName typeName ;
     List<Modifier> modifiers = new ArrayList<>();
-    List<AnnotationSpec> annotationSpecs = new ArrayList<>() ;
+    Set<AnnotationSpec> annotationSpecs = new HashSet<>() ;
 
-
-    public void setType(String type) {
-        this.type = type;
+    public TypeName getTypeName() {
+        return typeName;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public TypeMirror getTypeMirror() {
-        return typeMirror;
-    }
-
-    public void setTypeMirror(TypeMirror typeMirror) {
-        this.typeMirror = typeMirror;
+    public void setTypeName(TypeName typeName) {
+        this.typeName = typeName;
     }
 
     public List<Modifier> getModifiers() {
@@ -49,13 +41,62 @@ public class Field {
         this.modifiers = modifiers;
     }
 
-    public void setAnnotationSpecs(List<AnnotationSpec> annotationSpecs) {
+    public void setAnnotationSpecs(Set<AnnotationSpec> annotationSpecs) {
         this.annotationSpecs = annotationSpecs;
     }
 
-    public List<AnnotationSpec> getAnnotationSpecs() {
+    public Set<AnnotationSpec> getAnnotationSpecs() {
         return annotationSpecs;
     }
+
+    public void setImportPackage(String importPackage) {
+        this.importPackage = importPackage;
+    }
+
+    public String getImportPackage() {
+        return importPackage;
+    }
+
+    public void setReplaceImport(String replaceImport) {
+        this.replaceImport = replaceImport;
+    }
+
+    public String getReplaceImport() {
+        return replaceImport;
+    }
+
+    public void setReplaceGeneric(String replaceGeneric) {
+        this.replaceGeneric = replaceGeneric;
+    }
+
+    public String getReplaceGeneric() {
+        return replaceGeneric;
+    }
+
+    public boolean isNeedAdditionalImport(){
+        return importPackage!=null && !importPackage.isEmpty();
+    }
+    public boolean isNeedReplaceImport(){
+        return replaceImport!=null && !replaceImport.isEmpty();
+    }
+
+    public String getImportReplacer(){
+        if(replaceImport==null || replaceImport.isEmpty()){
+            return null;
+        }
+        return replaceImport+ CoreUtils.CLASS_SUFFIX;
+    }
+
+    public boolean isNeedReplaceGeneric(){
+        return replaceGeneric!=null && !replaceGeneric.isEmpty();
+    }
+    public String getGenericReplacer(){
+        if(replaceGeneric==null || replaceGeneric.isEmpty()){
+            return null;
+        }
+        return "<"+replaceGeneric.substring(replaceGeneric.indexOf("<")+1, replaceGeneric.indexOf(">"))+CoreUtils.CLASS_SUFFIX+">";
+    }
+
 
     public Modifier[] getArrayModifiers(){
         Modifier[] modifiers = new Modifier[this.modifiers.size()];

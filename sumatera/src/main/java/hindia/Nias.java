@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.CLASS)
 public @interface Nias {
-    String alias() default "";
+//    String alias() default "";
     boolean ignore() default false;
 
 }

@@ -26,9 +26,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: io.toolisticon.compiletesting:extension-api:0.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: io.toolisticon.compiletesting:extension-plainjava:0.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: io.toolisticon.compiletesting:extension-modulesupport:0.8.0" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.9.5" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.6" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.9.0" level="project" />
     <orderEntry type="library" name="Maven: com.squareup:javapoet:1.13.0" level="project" />
     <orderEntry type="library" name="Maven: org.modelmapper:modelmapper:2.3.2" level="project" />
   </component>
