@@ -67,8 +67,8 @@ Thanks for
  - [x] javapoet
  - [x] toolisticon
  - [x] modelmapper
- 
 
+======================================================================
 > Copyright (C) 2020 Alfarabi Dwi Karuniawan. All rights reserved This
 > software is the confidential and proprietary information of Alfarabi
 > Dwi Karuniawan. You shall not disclose such confidential information
