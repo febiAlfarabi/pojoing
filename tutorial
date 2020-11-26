@@ -13,7 +13,11 @@ gpg: key YOUR_KEY_ID marked as ultimately trusted
 ...
 4) Distributing your public key
 
-gpg2 --keyserver hkp://pool.sks-keyservers.net --send-keys YOUR_KEY_ID
+gpg --keyserver hkp://pool.sks-keyservers.net --send-keys YOUR_KEY_ID
+gpg --keyserver keyserver.ubuntu.com --send-keys yourkeyID
+
+## To Check Key is exist
+gpg --keyserver hkp://keyserver.ubuntu.com --search-key 'your@mail.com'
 
 5) Update your ~.m2/settings.xml
 
