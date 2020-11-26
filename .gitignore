@@ -4,6 +4,7 @@
 /sumatera/.idea
 /sumatera/target
 /sumatera/.sumatera.iml
+/sumatera/dependency-reduced-pom.xml
 
 /pojo-user/.idea
 /pojo-user/target
