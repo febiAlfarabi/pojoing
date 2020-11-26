@@ -1,7 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <name>Sumatera</name>
+    <description>
+        @Sumatera
 
+        Model converter from ORM class to regular pojo class, the ORM term is a modelling class that doesn't like regular pojo, such like @Entity from JPA/Hibernate and so on.
+
+        It can be used for mapping regular object, post data in request body where you cannot put ORM class directly in a parameter, or you cannot convert to json directly, or any other problem regarding it.
+
+        You don't need anymore to create duplicate Dto / Pojo class which represent ORM class, just write your ORM class and annotate it with @Sumatera, then the regular pojo class would be generated for you.
+    </description>
+    <url>https://github.com/febiAlfarabi/pojoing</url>
+
+    <licenses>
+        <license>
+            <name>The Alfarabi License</name>
+            <url>https://github.com/febiAlfarabi/pojoing/blob/master/sumatera/LICENSE.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>febiAlfarabi</id>
+            <name>Alfarabi Dwi Karuiawan</name>
+            <email>alfarabidwik@gmail.com</email>
+            <organization>Numeral Asia</organization>
+            <organizationUrl>https://numeralasia.com/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+                <role>founder</role>
+            </roles>
+            <timezone>Asia/Jakarta</timezone>
+        </developer>
+    </developers>
     <groupId>io.github.febialfarabi</groupId>
     <artifactId>sumatera</artifactId>
     <version>1.0.2-SNAPSHOT</version>
@@ -16,8 +50,8 @@
         <connection>scm:git:https://github.com/febiAlfarabi/pojoing.git</connection>
         <url>https://github.com/febiAlfarabi/pojoing</url>
         <developerConnection>scm:git:https://github.com/febiAlfarabi/pojoing.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <distributionManagement>
         <snapshotRepository>

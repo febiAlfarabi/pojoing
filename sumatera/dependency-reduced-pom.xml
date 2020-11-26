@@ -3,10 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.febialfarabi</groupId>
   <artifactId>sumatera</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
   <scm>
     <connection>scm:git:https://github.com/febiAlfarabi/pojoing.git</connection>
     <developerConnection>scm:git:https://github.com/febiAlfarabi/pojoing.git</developerConnection>
+    <tag>sumatera-1.0.1</tag>
     <url>https://github.com/febiAlfarabi/pojoing</url>
   </scm>
   <build>
