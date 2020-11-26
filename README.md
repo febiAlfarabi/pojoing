@@ -1,4 +1,5 @@
 
+
 # @Sumatera
 
 Model converter from **ORM class to regular pojo class**, the ORM term is a modelling class that doesn't like regular pojo, such like @Entity from JPA/Hibernate and so on.
@@ -67,10 +68,9 @@ Thanks for
  - [x] toolisticon
  - [x] modelmapper
  
- /**
- * Copyright (C) 2020 Alfarabi Dwi Karuniawan. All rights reserved This software is the confidential
- *  and proprietary information of Alfarabi Dwi Karuniawan. You shall not disclose such confidential
- * information and shall use it only in accordance with the terms of the license agreement you
- * entered into with Alfarabi Dwi Karuniawan.
- *
- */
+
+> Copyright (C) 2020 Alfarabi Dwi Karuniawan. All rights reserved This
+> software is the confidential and proprietary information of Alfarabi
+> Dwi Karuniawan. You shall not disclose such confidential information
+> and shall use it only in accordance with the terms of the license
+> agreement you entered into with Alfarabi Dwi Karuniawan.
