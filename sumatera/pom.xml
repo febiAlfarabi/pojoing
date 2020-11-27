@@ -107,11 +107,59 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
+                <inherited>false</inherited>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                     <compilerArgument>-proc:none</compilerArgument>
+                    <optimize>true</optimize>
+                    <useIncrementalCompilation>true</useIncrementalCompilation>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <annotationProcessors>
+                        <annotationProcessor>
+                            io.github.febialfarabi.processor.JavaBuilderProcessor
+                        </annotationProcessor>
+                    </annotationProcessors>
+                    <failOnError>false</failOnError>
                 </configuration>
+
+                <!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>3.5</version>-->
+<!--                <configuration>-->
+<!--                    <annotationProcessors>-->
+<!--                        <annotationProcessor>-->
+<!--                            io.github.febialfarabi.processor.JavaBuilderProcessor-->
+<!--                        </annotationProcessor>-->
+<!--                    </annotationProcessors>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>process-annotations</id>-->
+<!--                        <phase>generate-sources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>compile</goal>-->
+<!--                        </goals>-->
+<!--                        -->
+<!--                        <configuration>-->
+<!--                            <compilerArgs>-->
+<!--                                <arg>-proc:only</arg>-->
+<!--                            </compilerArgs>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>default-compile</id> &lt;!&ndash; using an id of default-compile will override the default execution &ndash;&gt;-->
+<!--                        <phase>compile</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>compile</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <compilerArgs>-->
+<!--                                <arg>-proc:none</arg>-->
+<!--                            </compilerArgs>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -133,6 +181,7 @@
                                     </shadedPattern>
                                 </relocation>
                             </relocations>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                         </configuration>
                     </execution>
                 </executions>

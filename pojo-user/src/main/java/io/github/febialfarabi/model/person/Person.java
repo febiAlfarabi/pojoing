@@ -31,6 +31,8 @@ public class Person extends Base {
     Integer orderCount ;
 
     CarDto car;
+    Boolean exists ;
+    Boolean coba ;
 
 
 
