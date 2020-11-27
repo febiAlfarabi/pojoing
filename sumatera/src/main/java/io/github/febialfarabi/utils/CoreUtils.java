@@ -101,7 +101,7 @@ public class CoreUtils {
     }
 
     public static void info(ProcessingEnvironment processingEnv, String msg, Element e) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, msg, e);
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, msg, e);
     }
 
 
