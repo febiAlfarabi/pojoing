@@ -20,7 +20,7 @@ public class Person extends Base {
 
     Address address ;
 
-    List<Car> cars = new ArrayList<>();
+    List<CarDto> cars = new ArrayList<>();
 
     boolean primitiveBoolean;
 

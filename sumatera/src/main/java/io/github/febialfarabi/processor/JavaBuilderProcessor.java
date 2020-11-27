@@ -15,7 +15,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.Serializable;
 import java.io.Writer;
@@ -25,6 +24,8 @@ import java.util.*;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class JavaBuilderProcessor extends AbstractProcessor {
 
+
+    private HashMap<String, String> wouldBeGeneratedClassNameMap = new HashMap<>();
 
     public JavaBuilderProcessor(){
     }
@@ -45,12 +46,22 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         CoreUtils.annotatedElements.clear();
         CoreUtils.annotatedElements.addAll(elements);
         List<String> uniqueIdCheckList = new ArrayList<>();
+        wouldBeGeneratedClassNameMap.clear();
+        for (Element element : elements) {
+            String className = element.getSimpleName()+CoreUtils.CLASS_SUFFIX;
+            String packageName = element.asType().toString();
+            packageName = packageName.replace(element.getSimpleName(), className);
+            wouldBeGeneratedClassNameMap.put(className, packageName);
+            CoreUtils.info(processingEnv, "MATCHER ### "+className+" : "+packageName, element);
+        }
 
         for (Element element : elements) {
             Sumatera sumatera = element.getAnnotation(Sumatera.class);
             CoreUtils.info(processingEnv, "Class yang dianotasi ### "+element.getSimpleName(), element);
             boolean error = false;
             String className = element.getSimpleName()+CoreUtils.CLASS_SUFFIX;
+            String packageName = CoreUtils.getPackageName(element);
+            packageName = packageName.replace(element.getSimpleName(), className);
 
             if (uniqueIdCheckList.contains(className)) {
                 CoreUtils.error(processingEnv, "Nama Dto "+className+" sudah digunakan, ganti dengan nama alias untuk membedakan class yang akan digenerate", element);
@@ -109,16 +120,18 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                     }
                 }
         );
+        MethodSpec constructorSpec = null;
+        MethodSpec.Builder constructorBuilder = null ;
+        if(fieldSpecSet.size()>0){
+            constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
+            for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
+                constructorBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey())
+                        .addStatement("this.$N = $N", stringFieldEntry.getKey(), stringFieldEntry.getKey());
+            }
+            constructorSpec = constructorBuilder.build();
+        }
 
-        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
-        fieldInfo.getFields().forEach((s, field) -> {
-            constructorBuilder.addParameter(field.getTypeName(), s).addStatement("this.$N = $N", s, s);
-
-        });
-        MethodSpec methodSpec = constructorBuilder.build();
-
-        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className) ;
-
+        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
         TypeElement typeElement = TypeUtils.TypeRetrieval.getTypeElement(element.asType().toString());
         TypeMirror inheritanceMirror = typeElement.getSuperclass();
         if(inheritanceMirror!=null && !inheritanceMirror.toString().equals("java.lang.Object")){
@@ -148,9 +161,11 @@ public class JavaBuilderProcessor extends AbstractProcessor {
 //                .addField(FieldSpec.builder(Gson.class, "gson", Modifier.STATIC).build())
 //                .addStaticBlock(CodeBlock.of("gson = new $N();", Gson.class.getSimpleName()))
                 .addFields(fieldSpecSet)
-                .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC).build())
-                .addMethod(methodSpec)
-                .addMethods(methodSpecSet)
+                .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC).build());
+        if(constructorSpec!=null){
+            typeSpecBuilder.addMethod(constructorSpec);
+        }
+        typeSpecBuilder.addMethods(methodSpecSet)
                 .addMethod(
                         MethodSpec.methodBuilder("from").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                         .addParameter(TypeName.get(element.asType()),  CoreUtils.getTypeName(element))
@@ -179,17 +194,24 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         JavaFile javaFile = javaFileBuilder.build();
 
         String content = javaFile.toString();
+        List<String> additionalImports = new ArrayList<>();
         for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
-            if(stringFieldEntry.getValue().isNeedReplaceImport()){
+            Field field = stringFieldEntry.getValue();
+            if(field.isNeedReplaceImport()){
                 CoreUtils.info(processingEnv, stringFieldEntry.getValue().getReplaceImport()+"="+stringFieldEntry.getValue().getImportReplacer(), element);
                 content = content.replace(stringFieldEntry.getValue().getReplaceImport(), stringFieldEntry.getValue().getImportReplacer());
             }
-            if(stringFieldEntry.getValue().isNeedReplaceGeneric()){
+            if(field.isNeedReplaceGeneric()){
                 String replaceGeneric = stringFieldEntry.getValue().getReplaceGeneric();
                 String genericReplacer = stringFieldEntry.getValue().getGenericReplacer();
                 CoreUtils.info(processingEnv, replaceGeneric+"="+genericReplacer, element);
                 content = content.replace(replaceGeneric, genericReplacer);
             }
+            wouldBeGeneratedClassNameMap.forEach((s, s2) -> {
+                if(field.getTypeName().toString().equalsIgnoreCase(s) || field.getTypeName().toString().contains("<"+s+">")){
+                    additionalImports.add(s2);
+                }
+            });
         }
         String[] contentSplit = content.split(System.lineSeparator(), 2);
         StringBuilder stringBuilder= new StringBuilder();
@@ -208,6 +230,13 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 }
             }
         }
+        for (String additionalImport : additionalImports) {
+            String builderContent = stringBuilder.toString();
+            if(!builderContent.contains(additionalImport)){
+                stringBuilder.append(System.lineSeparator()).append("import").append(" ").append(additionalImport).append(";");
+            }
+        }
+
 
         stringBuilder.append(contentSplit[1]);
 
