@@ -1,8 +1,17 @@
 package io.github.febialfarabi.utils;
 
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.MethodSpec;
+import io.github.febialfarabi.model.Field;
+import io.github.febialfarabi.processor.FieldInfo;
+import io.toolisticon.annotationprocessortoolkit.tools.TypeUtils;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
@@ -101,8 +110,107 @@ public class CoreUtils {
     }
 
     public static void info(ProcessingEnvironment processingEnv, String msg, Element e) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, msg, e);
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, msg, e);
     }
+
+    public static Modifier translate(int mode){
+        if(java.lang.reflect.Modifier.isAbstract(mode)){
+            return Modifier.ABSTRACT;
+        }
+        if(java.lang.reflect.Modifier.isPublic(mode)){
+            return Modifier.PUBLIC;
+        }
+        if(java.lang.reflect.Modifier.isStatic(mode)){
+            return Modifier.STATIC;
+        }
+        if(java.lang.reflect.Modifier.isFinal(mode)){
+            return Modifier.FINAL;
+        }
+        if(java.lang.reflect.Modifier.isNative(mode)){
+            return Modifier.NATIVE;
+        }
+        if(java.lang.reflect.Modifier.isPrivate(mode)){
+            return Modifier.PRIVATE;
+        }
+        if(java.lang.reflect.Modifier.isProtected(mode)){
+            return Modifier.PROTECTED;
+        }
+        if(java.lang.reflect.Modifier.isStrict(mode)){
+            return Modifier.STRICTFP;
+        }
+        if(java.lang.reflect.Modifier.isSynchronized(mode)){
+            return Modifier.SYNCHRONIZED;
+        }
+        if(java.lang.reflect.Modifier.isTransient(mode)){
+            return Modifier.TRANSIENT;
+        }
+        if(java.lang.reflect.Modifier.isVolatile(mode)){
+            return Modifier.VOLATILE;
+        }
+        return Modifier.DEFAULT;
+    }
+
+    public static MethodSpec constructorSpec(ProcessingEnvironment processingEnv, TypeElement element) throws Exception{
+        FieldInfo fieldInfo = FieldInfo.get(processingEnv, element);
+        Set<FieldSpec> fieldSpecSet = new HashSet<>();
+        fieldInfo.getFields().forEach(
+                (s, field) -> {
+                    FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(field.getTypeName(), s, field.getArrayModifiers());
+                    for (AnnotationSpec annotationSpec : field.getAnnotationSpecs()) {
+                        fieldSpecBuilder.addAnnotation(annotationSpec);
+                    }
+                    fieldSpecSet.add(fieldSpecBuilder.build());
+                }
+        );
+        MethodSpec constructorSpec = null;
+        final MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
+        boolean createConstructor = false ;
+        TypeMirror inheritanceMirror = element.getSuperclass();
+        if (inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
+            StringBuilder statementBuilder = new StringBuilder();
+            statementBuilder.append("super").append("(");
+            statementBuilder = paramBuilder(processingEnv, constructorBuilder, statementBuilder, element);
+            statementBuilder.append(")");
+            String statement = statementBuilder.toString();
+            statement = statement.replace("(,", "(");
+            statement = statement.replace(",)", ")");
+            constructorBuilder.addStatement(statement);
+            createConstructor = true ;
+        }
+
+        if(fieldSpecSet.size()>0){
+            for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
+                constructorBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey())
+                        .addStatement("this.$N = $N", stringFieldEntry.getKey(), stringFieldEntry.getKey());
+            }
+            createConstructor = true ;
+        }
+        if(createConstructor){
+            constructorSpec = constructorBuilder.build();
+        }
+        return constructorSpec;
+
+    }
+
+    private static StringBuilder paramBuilder(ProcessingEnvironment processingEnv,
+                                              MethodSpec.Builder constructorSpecBuilder, StringBuilder stringBuilder, TypeElement element) throws Exception{
+        TypeMirror inheritanceMirror = element.getSuperclass();
+        if (inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
+            TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
+            stringBuilder = paramBuilder(processingEnv, constructorSpecBuilder, stringBuilder, inheritanceElement);
+            FieldInfo inheritanceFieldInfo = FieldInfo.get(processingEnv, inheritanceElement);
+            for (Map.Entry<String, Field> stringFieldEntry : inheritanceFieldInfo.getFields().entrySet()) {
+                constructorSpecBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey());
+                stringBuilder.append(stringFieldEntry.getKey());
+                stringBuilder.append(",");
+            }
+//            info(processingEnv, "inheritance mirror ###### "+inheritanceMirror.toString(), element);
+        }
+        return stringBuilder;
+
+    }
+
+
 
 
 }

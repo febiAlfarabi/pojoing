@@ -10,15 +10,17 @@ import org.modelmapper.ModelMapper;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 import java.io.Serializable;
 import java.io.Writer;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SupportedAnnotationTypes({"hindia.*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -81,13 +83,15 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         return false;
     }
 
-    public void generateJavaClass(String className, Element element) throws Exception{
+    public void generateJavaClass(String className, Element originalElement) throws Exception{
+        TypeElement element = TypeUtils.TypeRetrieval.getTypeElement(originalElement.asType());
         Modifier[] modifiers = new Modifier[element.getModifiers().size()];
         int i = 0 ;
         for (Modifier modifier : element.getModifiers()) {
             modifiers[i] = modifier;
             i++;
         }
+
         FieldInfo fieldInfo = FieldInfo.get(processingEnv, element);
         Set<FieldSpec> fieldSpecSet = new HashSet<>();
         Set<Field> importFieldSet = new HashSet<>();
@@ -106,35 +110,30 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         );
 
         Set<MethodSpec> methodSpecSet = new HashSet<>();
-        fieldInfo.getFields().forEach(
-                (s, field) -> {
-                    methodSpecSet.add(MethodSpec.methodBuilder("set" + Character.toUpperCase(s.charAt(0)) + s.substring(1))
-                            .addParameter(field.getTypeName(), s).addModifiers(Modifier.PUBLIC).addStatement("this.$N = $N", s, s).build());
+        for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
+            String fieldName = stringFieldEntry.getKey();
+            Field field = stringFieldEntry.getValue();
+            /*Setter*/
+            String setMethodName = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+            MethodSpec setMethodSpec  = MethodSpec.methodBuilder(setMethodName)
+                    .addParameter(field.getTypeName(), fieldName).addModifiers(Modifier.PUBLIC)
+                    .addStatement("this.$N = $N", fieldName, fieldName).build();
+            methodSpecSet.add(setMethodSpec);
 
-                    if(field.getTypeName().equals(TypeName.BOOLEAN)){
-                        methodSpecSet.add(MethodSpec.methodBuilder("is" + Character.toUpperCase(s.charAt(0)) + s.substring(1))
-                                .returns(field.getTypeName()).addModifiers(Modifier.PUBLIC).addStatement("return this.$N", s).build());
-                    }else{
-                        methodSpecSet.add(MethodSpec.methodBuilder("get" + Character.toUpperCase(s.charAt(0)) + s.substring(1))
-                                .returns(field.getTypeName()).addModifiers(Modifier.PUBLIC).addStatement("return this.$N", s).build());
-                    }
-                }
-        );
-        MethodSpec constructorSpec = null;
-        MethodSpec.Builder constructorBuilder = null ;
-        if(fieldSpecSet.size()>0){
-            constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
-            for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
-                constructorBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey())
-                        .addStatement("this.$N = $N", stringFieldEntry.getKey(), stringFieldEntry.getKey());
+            /*Getter*/
+            String getMethodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+            MethodSpec getMethodSpec  = MethodSpec.methodBuilder(getMethodName).returns(field.getTypeName()).addModifiers(Modifier.PUBLIC).addStatement("return this.$N", fieldName).build();
+
+            if(field.getTypeName().equals(TypeName.BOOLEAN)){
+                getMethodName = "is" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+                getMethodSpec  = MethodSpec.methodBuilder(getMethodName).returns(field.getTypeName()).addModifiers(Modifier.PUBLIC).addStatement("return this.$N", fieldName).build();
             }
-            constructorSpec = constructorBuilder.build();
+            methodSpecSet.add(getMethodSpec);
         }
 
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
-        TypeElement typeElement = TypeUtils.TypeRetrieval.getTypeElement(element.asType().toString());
-        TypeMirror inheritanceMirror = typeElement.getSuperclass();
-        if(inheritanceMirror!=null && !inheritanceMirror.toString().equals("java.lang.Object")){
+        TypeMirror inheritanceMirror = element.getSuperclass();
+        if(inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
             TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
             Boolean annotated = inheritanceElement.getAnnotation(Sumatera.class)!=null;
             if(!annotated){
@@ -142,11 +141,10 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 return;
             }
             String inheritanceClassName = inheritanceElement.getSimpleName()+CoreUtils.CLASS_SUFFIX;
-
             typeSpecBuilder.superclass(ClassName.bestGuess(inheritanceClassName));
         }
         typeSpecBuilder.addSuperinterface(Serializable.class);
-        for (AnnotationMirror annotationMirror : typeElement.getAnnotationMirrors()) {
+        for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
             if(annotationMirror.getAnnotationType().toString().contains("ToString")){
                 typeSpecBuilder.addAnnotation(AnnotationSpec.get(annotationMirror));
             }
@@ -154,6 +152,39 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 typeSpecBuilder.addAnnotation(AnnotationSpec.get(annotationMirror));
             }
         }
+
+        MethodSpec constructorSpec = CoreUtils.constructorSpec(processingEnv, element);
+//        final MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
+//        boolean createConstructor = false ;
+//        if(inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
+//            TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
+//            FieldInfo inheritanceFieldInfo = FieldInfo.get(processingEnv, inheritanceElement);
+//            StringBuilder statementBuilder = new StringBuilder();
+//            statementBuilder.append("super").append("(");
+//            int index = 0 ;
+//            for (Map.Entry<String, Field> stringFieldEntry : inheritanceFieldInfo.getFields().entrySet()) {
+//                constructorBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey());
+//                statementBuilder.append(stringFieldEntry.getKey());
+//                if(index<inheritanceFieldInfo.getFields().size()-1){
+//                    statementBuilder.append(",");
+//                }
+//                index++;
+//            }
+//            statementBuilder.append(")");
+//            constructorBuilder.addStatement(statementBuilder.toString());
+//            createConstructor = true ;
+//        }
+//        if(fieldSpecSet.size()>0){
+//            for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
+//                constructorBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey())
+//                        .addStatement("this.$N = $N", stringFieldEntry.getKey(), stringFieldEntry.getKey());
+//            }
+//            createConstructor = true ;
+//        }
+//        if(createConstructor){
+//            constructorSpec = constructorBuilder.build();
+//        }
+
 
         typeSpecBuilder = typeSpecBuilder.addModifiers(modifiers)
                 .addField(FieldSpec.builder(ModelMapper.class, "mapper", Modifier.STATIC).build())
@@ -236,7 +267,6 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 stringBuilder.append(System.lineSeparator()).append("import").append(" ").append(additionalImport).append(";");
             }
         }
-
 
         stringBuilder.append(contentSplit[1]);
 

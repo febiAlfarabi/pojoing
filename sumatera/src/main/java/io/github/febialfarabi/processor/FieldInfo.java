@@ -41,7 +41,7 @@ public class FieldInfo {
         return mandatoryFields;
     }
 
-    public static FieldInfo get(ProcessingEnvironment processingEnvironment, Element element) throws Exception{
+    public static FieldInfo get(ProcessingEnvironment processingEnvironment, TypeElement element) throws Exception{
         LinkedHashMap<String, Field> fields = new LinkedHashMap<>();
         List<String> mandatoryFields = new ArrayList<>();
 

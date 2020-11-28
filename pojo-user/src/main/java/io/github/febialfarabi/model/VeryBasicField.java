@@ -2,8 +2,10 @@ package io.github.febialfarabi.model;
 
 import hindia.Sumatera;
 
-@Sumatera
-public class Base extends BasicField{
+import java.util.Date;
 
-    Long id ;
+@Sumatera
+public class VeryBasicField {
+
+    Date updated ;
 }

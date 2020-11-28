@@ -3,7 +3,6 @@ package io.github.febialfarabi.model.person;
 
 import hindia.Sumatera;
 import io.github.febialfarabi.model.Base;
-import io.github.febialfarabi.model.vehicle.Car;
 import io.github.febialfarabi.model.vehicle.CarDto;
 import lombok.ToString;
 
@@ -35,5 +34,7 @@ public class Person extends Base {
     Boolean coba ;
 
 
-
+    public CarDto testGetCar() {
+        return car;
+    }
 }
