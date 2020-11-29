@@ -1,5 +1,7 @@
 package io.github.febialfarabi.processor;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.squareup.javapoet.*;
 import hindia.Sumatera;
 import io.github.febialfarabi.model.Field;
@@ -10,17 +12,15 @@ import org.modelmapper.ModelMapper;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 import java.io.Serializable;
 import java.io.Writer;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SupportedAnnotationTypes({"hindia.*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -85,6 +85,8 @@ public class JavaBuilderProcessor extends AbstractProcessor {
 
     public void generateJavaClass(String className, Element originalElement) throws Exception{
         TypeElement element = TypeUtils.TypeRetrieval.getTypeElement(originalElement.asType());
+        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
+
         Modifier[] modifiers = new Modifier[element.getModifiers().size()];
         int i = 0 ;
         for (Modifier modifier : element.getModifiers()) {
@@ -97,8 +99,7 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         Set<Field> importFieldSet = new HashSet<>();
         fieldInfo.getFields().forEach(
                 (s, field) -> {
-                    FieldSpec.Builder fieldSpecBuilder = null ;
-                    fieldSpecBuilder = FieldSpec.builder(field.getTypeName(), s, field.getArrayModifiers());
+                    FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(field.getTypeName(), s, field.getArrayModifiers());
                     if(field.isNeedAdditionalImport()){
                         importFieldSet.add(field);
                     }
@@ -108,7 +109,30 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                     fieldSpecSet.add(fieldSpecBuilder.build());
                 }
         );
+        TypeMirror inheritanceMirror = element.getSuperclass();
+        if(inheritanceMirror!=null && inheritanceMirror.toString().equals(Object.class.getName())) {
+            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(HashMap.class,"unrecognizedField");
+            fieldSpecSet.add(fieldSpecBuilder.build());
+            MethodSpec unrecognizedSetSpec = MethodSpec.methodBuilder("setUnrecognizedField")
+                    .addParameter( String.class, "propertyKey")
+                    .addParameter( Object.class, "value")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addAnnotation(JsonAnySetter.class)
+                    .addStatement(
+                            "if (this.unrecognizedField == null) {\n" +
+                                    "    this.unrecognizedField = new HashMap<>();\n" +
+                                    "}\n" +
+                                    "this.unrecognizedField.put(propertyKey, value);"
+                    ).build();
+            typeSpecBuilder.addMethod(unrecognizedSetSpec);
+            MethodSpec unrecognizedGetSpec = MethodSpec.methodBuilder("getUnrecognizedField")
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(Map.class)
+                    .addAnnotation(JsonAnyGetter.class)
+                    .addStatement("return this.unrecognizedField").build();
+            typeSpecBuilder.addMethod(unrecognizedGetSpec);
 
+        }
         Set<MethodSpec> methodSpecSet = new HashSet<>();
         for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
             String fieldName = stringFieldEntry.getKey();
@@ -131,8 +155,7 @@ public class JavaBuilderProcessor extends AbstractProcessor {
             methodSpecSet.add(getMethodSpec);
         }
 
-        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(className);
-        TypeMirror inheritanceMirror = element.getSuperclass();
+
         if(inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
             TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
             Boolean annotated = inheritanceElement.getAnnotation(Sumatera.class)!=null;
@@ -154,36 +177,6 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         }
 
         MethodSpec constructorSpec = CoreUtils.constructorSpec(processingEnv, element);
-//        final MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
-//        boolean createConstructor = false ;
-//        if(inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
-//            TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
-//            FieldInfo inheritanceFieldInfo = FieldInfo.get(processingEnv, inheritanceElement);
-//            StringBuilder statementBuilder = new StringBuilder();
-//            statementBuilder.append("super").append("(");
-//            int index = 0 ;
-//            for (Map.Entry<String, Field> stringFieldEntry : inheritanceFieldInfo.getFields().entrySet()) {
-//                constructorBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey());
-//                statementBuilder.append(stringFieldEntry.getKey());
-//                if(index<inheritanceFieldInfo.getFields().size()-1){
-//                    statementBuilder.append(",");
-//                }
-//                index++;
-//            }
-//            statementBuilder.append(")");
-//            constructorBuilder.addStatement(statementBuilder.toString());
-//            createConstructor = true ;
-//        }
-//        if(fieldSpecSet.size()>0){
-//            for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
-//                constructorBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey())
-//                        .addStatement("this.$N = $N", stringFieldEntry.getKey(), stringFieldEntry.getKey());
-//            }
-//            createConstructor = true ;
-//        }
-//        if(createConstructor){
-//            constructorSpec = constructorBuilder.build();
-//        }
 
 
         typeSpecBuilder = typeSpecBuilder.addModifiers(modifiers)
