@@ -76,6 +76,7 @@ Thanks for
  - [x] Apache
  - [x] javapoet
  - [x] toolisticon
+ - [x] jackson
  - [x] modelmapper
 
     
