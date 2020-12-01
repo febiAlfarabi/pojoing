@@ -257,7 +257,14 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         }
         String[] contentSplit = content.split(System.lineSeparator(), 2);
         StringBuilder stringBuilder= new StringBuilder();
-        stringBuilder.append(contentSplit[0]).append(System.lineSeparator()).append(System.lineSeparator());
+        stringBuilder.append(contentSplit[0])
+                .append(System.lineSeparator()).append(System.lineSeparator());
+
+        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.convention.MatchingStrategies").append(";");
+        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.Conditions").append(";");
+        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("com.fasterxml.jackson.annotation.JsonInclude").append(";");
+
+
         if(inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
             TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
             stringBuilder.append("import").append(" ").append(CoreUtils.getPackageName(inheritanceElement)+"."+CoreUtils.getTypeName(inheritanceElement)+CoreUtils.CLASS_SUFFIX).append(";");
@@ -278,9 +285,6 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 stringBuilder.append(System.lineSeparator()).append("import").append(" ").append(additionalImport).append(";");
             }
         }
-        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.convention.MatchingStrategies").append(";");
-        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.Conditions").append(";");
-        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("com.fasterxml.jackson.annotation.JsonInclude").append(";");
 
         if(contentSplit.length>1){
             stringBuilder.append(contentSplit[1]);
