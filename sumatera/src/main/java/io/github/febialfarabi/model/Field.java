@@ -15,7 +15,12 @@ import java.util.Set;
 
 public class Field {
 
-    public static final String[] ACCEPTABLE_ANNOTATIONS = {"JsonIgnore", "JsonIgnoreProperties", "JsonProperty", "JsonSerialize", "JsonDeserialize", "SerializedName"};
+    public static final String[] ACCEPTABLE_ANNOTATIONS = {"JsonIgnore",
+            "JsonIgnoreProperties",
+            "JsonProperty",
+            "JsonSerialize",
+            "JsonDeserialize",
+            "SerializedName"};
     public static final Class[] FILTERED_ANNOTATIONS = {Sumatera.class, Nias.class};
 
     String importPackage ;

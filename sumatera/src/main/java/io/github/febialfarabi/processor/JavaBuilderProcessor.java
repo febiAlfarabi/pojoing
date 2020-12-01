@@ -124,10 +124,11 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                     .addAnnotation(JsonAnySetter.class)
                     .addStatement(
                             "if (this.unrecognizedField == null) {\n" +
-                                    "    this.unrecognizedField = new HashMap<>();\n" +
-                                    "}\n" +
-                                    "this.unrecognizedField.put(propertyKey, value);"
-                    ).build();
+                            "    this.unrecognizedField = new HashMap<>();\n" +
+                            "}\n" +
+                            "if (value != null){\n" +
+                            "this.unrecognizedField.put(propertyKey, value);\n" +
+                            "}\n").build();
             typeSpecBuilder.addMethod(unrecognizedSetSpec);
             MethodSpec unrecognizedGetSpec = MethodSpec.methodBuilder("getUnrecognizedField")
                     .addModifiers(Modifier.PUBLIC)
@@ -145,16 +146,21 @@ public class JavaBuilderProcessor extends AbstractProcessor {
             String setMethodName = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
             MethodSpec setMethodSpec  = MethodSpec.methodBuilder(setMethodName)
                     .addParameter(field.getTypeName(), fieldName).addModifiers(Modifier.PUBLIC)
-                    .addStatement("this.$N = $N", fieldName, fieldName).build();
+                    .beginControlFlow("try")
+                    .addStatement("this.$N = $N", fieldName, fieldName)
+                    .nextControlFlow("catch ($T e)", Exception.class)
+                    .endControlFlow().build();
             methodSpecSet.add(setMethodSpec);
 
             /*Getter*/
             String getMethodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-            MethodSpec getMethodSpec  = MethodSpec.methodBuilder(getMethodName).returns(field.getTypeName()).addModifiers(Modifier.PUBLIC).addStatement("return this.$N", fieldName).build();
+            MethodSpec getMethodSpec  = MethodSpec.methodBuilder(getMethodName).returns(field.getTypeName()).addModifiers(Modifier.PUBLIC)
+                    .addStatement("return this.$N", fieldName).build();
 
             if(field.getTypeName().equals(TypeName.BOOLEAN)){
                 getMethodName = "is" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                getMethodSpec  = MethodSpec.methodBuilder(getMethodName).returns(field.getTypeName()).addModifiers(Modifier.PUBLIC).addStatement("return this.$N", fieldName).build();
+                getMethodSpec  = MethodSpec.methodBuilder(getMethodName).returns(field.getTypeName()).addModifiers(Modifier.PUBLIC)
+                        .addStatement("return this.$N", fieldName).build();
             }
             methodSpecSet.add(getMethodSpec);
         }
@@ -172,6 +178,9 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         }
         typeSpecBuilder.addSuperinterface(Serializable.class);
         for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+            if(annotationMirror.getAnnotationType().toString().contains("TypeDef")){
+                typeSpecBuilder.addAnnotation(AnnotationSpec.get(annotationMirror));
+            }
             if(annotationMirror.getAnnotationType().toString().contains("ToString")){
                 typeSpecBuilder.addAnnotation(AnnotationSpec.get(annotationMirror));
             }
@@ -273,8 +282,9 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.Conditions").append(";");
         stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("com.fasterxml.jackson.annotation.JsonInclude").append(";");
 
-
-        stringBuilder.append(contentSplit[1]);
+        if(contentSplit.length>1){
+            stringBuilder.append(contentSplit[1]);
+        }
 
         generateClass(pkg + "." + className, stringBuilder.toString());
 
