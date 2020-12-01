@@ -257,7 +257,10 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         }
         String[] contentSplit = content.split(System.lineSeparator(), 2);
         if(contentSplit.length==1){
-            contentSplit = content.split("\\r?\\n");
+            contentSplit = content.split("\\r?\\n", 2);
+        }
+        if(contentSplit.length==1){
+            contentSplit = content.split(";", 2);
         }
         StringBuilder stringBuilder= new StringBuilder();
         stringBuilder.append(contentSplit[0])
