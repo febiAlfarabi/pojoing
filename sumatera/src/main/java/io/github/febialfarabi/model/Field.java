@@ -1,6 +1,7 @@
 package io.github.febialfarabi.model;
 
 import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 import hindia.Nias;
 import hindia.Sumatera;
@@ -24,6 +25,8 @@ public class Field {
     TypeName typeName ;
     List<Modifier> modifiers = new ArrayList<>();
     Set<AnnotationSpec> annotationSpecs = new HashSet<>() ;
+
+    Object defaultValue ;
 
     public TypeName getTypeName() {
         return typeName;
@@ -85,6 +88,14 @@ public class Field {
             return null;
         }
         return replaceImport+ CoreUtils.CLASS_SUFFIX;
+    }
+
+    public void setDefaultValue(Object defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    public Object getDefaultValue() {
+        return defaultValue;
     }
 
     public boolean isNeedReplaceGeneric(){

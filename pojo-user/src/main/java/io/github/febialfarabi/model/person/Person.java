@@ -7,9 +7,7 @@ import io.github.febialfarabi.model.vehicle.CarDto;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 ;
 
@@ -19,7 +17,7 @@ public class Person extends Base {
 
     Address address ;
 
-    List<CarDto> cars = new ArrayList<>();
+    Set<CarDto> cars = new HashSet<>();
 
     boolean primitiveBoolean;
 

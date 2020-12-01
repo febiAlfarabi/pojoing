@@ -2,6 +2,7 @@ package io.github.febialfarabi.processor;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.squareup.javapoet.*;
 import hindia.Sumatera;
 import io.github.febialfarabi.model.Field;
@@ -106,6 +107,9 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                     for (AnnotationSpec annotationSpec : field.getAnnotationSpecs()) {
                         fieldSpecBuilder.addAnnotation(annotationSpec);
                     }
+                    if(field.getDefaultValue()!=null){
+                        fieldSpecBuilder.initializer("new $N()", field.getDefaultValue());
+                    }
                     fieldSpecSet.add(fieldSpecBuilder.build());
                 }
         );
@@ -175,13 +179,18 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 typeSpecBuilder.addAnnotation(AnnotationSpec.get(annotationMirror));
             }
         }
+        typeSpecBuilder.addAnnotation(AnnotationSpec.builder(JsonInclude.class).addMember("value", "JsonInclude.Include.NON_NULL").build());
 
         MethodSpec constructorSpec = CoreUtils.constructorSpec(processingEnv, element);
 
 
         typeSpecBuilder = typeSpecBuilder.addModifiers(modifiers)
                 .addField(FieldSpec.builder(ModelMapper.class, "mapper", Modifier.STATIC).build())
-                .addStaticBlock(CodeBlock.of("mapper = new $N();", ModelMapper.class.getSimpleName()))
+                .addStaticBlock(CodeBlock.of("" +
+                        "mapper = new $N();\n" +
+                        "mapper.getConfiguration().setAmbiguityIgnored(true);\n" +
+                        "mapper.getConfiguration().setSkipNullEnabled(true);\n" +
+                        "mapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());\n", ModelMapper.class.getSimpleName()))
 //                .addField(FieldSpec.builder(Gson.class, "gson", Modifier.STATIC).build())
 //                .addStaticBlock(CodeBlock.of("gson = new $N();", Gson.class.getSimpleName()))
                 .addFields(fieldSpecSet)
@@ -260,6 +269,10 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 stringBuilder.append(System.lineSeparator()).append("import").append(" ").append(additionalImport).append(";");
             }
         }
+        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.convention.MatchingStrategies").append(";");
+        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.Conditions").append(";");
+        stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("com.fasterxml.jackson.annotation.JsonInclude").append(";");
+
 
         stringBuilder.append(contentSplit[1]);
 

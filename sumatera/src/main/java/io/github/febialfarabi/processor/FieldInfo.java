@@ -46,7 +46,6 @@ public class FieldInfo {
         List<String> mandatoryFields = new ArrayList<>();
 
         for (VariableElement variableElement : ElementFilter.fieldsIn(element.getEnclosedElements())) {
-
             String variableName = variableElement.getSimpleName().toString();
             if(variableElement.getModifiers().contains(Modifier.FINAL) || variableElement.getModifiers().contains(Modifier.STATIC)){
                 continue;
@@ -86,6 +85,19 @@ public class FieldInfo {
                             field.setReplaceImport(CoreUtils.getGenericTypeName(variableElement));
                             field.setReplaceGeneric(CoreUtils.getNormalGeneric(variableElement));
                         }
+                        if(Set.class.isAssignableFrom(Class.forName(CoreUtils.getFullname(variableElement)))){
+                            field.setDefaultValue("HashSet<>");
+                            field.setImportPackage(HashSet.class.getName());
+                        }
+                        if(List.class.isAssignableFrom(Class.forName(CoreUtils.getFullname(variableElement)))){
+                            field.setDefaultValue("ArrayList<>");
+                            field.setImportPackage(ArrayList.class.getName());
+                        }
+                        if(Map.class.isAssignableFrom(Class.forName(CoreUtils.getFullname(variableElement)))){
+                            field.setDefaultValue("HashMap<>");
+                            field.setImportPackage(HashMap.class.getName());
+                        }
+
                     }else{
                         field.setTypeName(TypeName.get(variableElement.asType()));
                     }
