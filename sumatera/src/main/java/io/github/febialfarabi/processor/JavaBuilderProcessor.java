@@ -255,7 +255,7 @@ public class JavaBuilderProcessor extends AbstractProcessor {
                 }
             });
         }
-        String[] contentSplit = content.split(System.lineSeparator(), 2);
+        String[] contentSplit = content.split(System.getProperty("line.separator"), 2);
         StringBuilder stringBuilder= new StringBuilder();
         stringBuilder.append(contentSplit[0])
                 .append(System.lineSeparator()).append(System.lineSeparator());
