@@ -5,6 +5,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import io.github.febialfarabi.model.Field;
 import io.github.febialfarabi.processor.FieldInfo;
+import io.github.febialfarabi.processor.JavaBuilderProcessor;
 import io.toolisticon.annotationprocessortoolkit.tools.TypeUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -150,7 +151,7 @@ public class CoreUtils {
         return Modifier.DEFAULT;
     }
 
-    public static MethodSpec constructorSpec(ProcessingEnvironment processingEnv, TypeElement element) throws Exception{
+    public static MethodSpec constructorSpec(List<String> constructorImports, ProcessingEnvironment processingEnv, TypeElement element) throws Exception{
         FieldInfo fieldInfo = FieldInfo.get(processingEnv, element);
         Set<FieldSpec> fieldSpecSet = new HashSet<>();
         fieldInfo.getFields().forEach(
@@ -169,7 +170,7 @@ public class CoreUtils {
         if (inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
             StringBuilder statementBuilder = new StringBuilder();
             statementBuilder.append("super").append("(");
-            statementBuilder = paramBuilder(processingEnv, constructorBuilder, statementBuilder, element);
+            statementBuilder = paramBuilder(constructorImports, processingEnv, constructorBuilder, statementBuilder, element);
             statementBuilder.append(")");
             String statement = statementBuilder.toString();
             statement = statement.replace("(,", "(");
@@ -192,17 +193,20 @@ public class CoreUtils {
 
     }
 
-    private static StringBuilder paramBuilder(ProcessingEnvironment processingEnv,
+    private static StringBuilder paramBuilder(List<String> constructorImports, ProcessingEnvironment processingEnv,
                                               MethodSpec.Builder constructorSpecBuilder, StringBuilder stringBuilder, TypeElement element) throws Exception{
         TypeMirror inheritanceMirror = element.getSuperclass();
         if (inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
             TypeElement inheritanceElement = TypeUtils.TypeRetrieval.getTypeElement(inheritanceMirror);
-            stringBuilder = paramBuilder(processingEnv, constructorSpecBuilder, stringBuilder, inheritanceElement);
+            stringBuilder = paramBuilder(constructorImports, processingEnv, constructorSpecBuilder, stringBuilder, inheritanceElement);
             FieldInfo inheritanceFieldInfo = FieldInfo.get(processingEnv, inheritanceElement);
             for (Map.Entry<String, Field> stringFieldEntry : inheritanceFieldInfo.getFields().entrySet()) {
                 constructorSpecBuilder.addParameter(stringFieldEntry.getValue().getTypeName(), stringFieldEntry.getKey());
                 stringBuilder.append(stringFieldEntry.getKey());
                 stringBuilder.append(",");
+                if(JavaBuilderProcessor.wouldBeGeneratedClassNameMap.containsKey(stringFieldEntry.getValue().getTypeName().toString())){
+                    constructorImports.add(JavaBuilderProcessor.wouldBeGeneratedClassNameMap.get(stringFieldEntry.getValue().getTypeName().toString()));
+                }
             }
 //            info(processingEnv, "inheritance mirror ###### "+inheritanceMirror.toString(), element);
         }

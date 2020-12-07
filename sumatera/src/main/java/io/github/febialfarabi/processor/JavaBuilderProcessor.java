@@ -28,7 +28,7 @@ import java.util.*;
 public class JavaBuilderProcessor extends AbstractProcessor {
 
 
-    private HashMap<String, String> wouldBeGeneratedClassNameMap = new HashMap<>();
+    public static HashMap<String, String> wouldBeGeneratedClassNameMap = new HashMap<>();
 
     public JavaBuilderProcessor(){
     }
@@ -190,7 +190,13 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         }
         typeSpecBuilder.addAnnotation(AnnotationSpec.builder(JsonInclude.class).addMember("value", "JsonInclude.Include.NON_NULL").build());
 
-        MethodSpec constructorSpec = CoreUtils.constructorSpec(processingEnv, element);
+        List<String> constructorImports = new ArrayList<>();
+
+        MethodSpec constructorSpec = CoreUtils.constructorSpec(constructorImports, processingEnv, element);
+        List<String> additionalImports = new ArrayList<>();
+        constructorImports.forEach((s) -> {
+            additionalImports.add(s);
+        });
 
 
         typeSpecBuilder = typeSpecBuilder.addModifiers(modifiers)
@@ -236,7 +242,6 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         JavaFile javaFile = javaFileBuilder.build();
 
         String content = javaFile.toString();
-        List<String> additionalImports = new ArrayList<>();
         for (Map.Entry<String, Field> stringFieldEntry : fieldInfo.getFields().entrySet()) {
             Field field = stringFieldEntry.getValue();
             if(field.isNeedReplaceImport()){
