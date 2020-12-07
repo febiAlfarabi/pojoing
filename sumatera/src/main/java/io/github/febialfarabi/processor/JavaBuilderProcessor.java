@@ -274,6 +274,7 @@ public class JavaBuilderProcessor extends AbstractProcessor {
         stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.convention.MatchingStrategies").append(";");
         stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("org.modelmapper.Conditions").append(";");
         stringBuilder.append(System.lineSeparator()).append("import").append(" ").append("com.fasterxml.jackson.annotation.JsonInclude").append(";");
+        stringBuilder.append(System.lineSeparator()).append(System.lineSeparator());
 
 
         if(inheritanceMirror!=null && !inheritanceMirror.toString().equals(Object.class.getName())){
