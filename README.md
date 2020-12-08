@@ -66,7 +66,7 @@ Add this dependency maven project
     <dependency>  
 	    <groupId>io.github.febialfarabi</groupId>
 	    <artifactId>sumatera</artifactId>
-	    <version>1.0.17</version>
+	    <version>1.0.21</version>
     </dependency>
 
 > Happy Coding..!!
