@@ -1,7 +1,10 @@
 #### Create Repository
 #### https://stackoverflow.com/questions/28846802/how-to-manually-publish-jar-to-maven-central
 
-1) Create your Jira account : Signup Sonatype
+1) Create your Jira account : Signup Sonatype //https://issues.sonatype.org/secure/Signup!default.jspa
+
+username : febialfarabi
+password : Gioibanez.1q2w3e4r
 
 2) Create a new project ticket (to claim your workspace) : Create new project ticket
 
@@ -19,7 +22,30 @@ gpg --keyserver keyserver.ubuntu.com --send-keys yourkeyID
 ## To Check Key is exist
 gpg --keyserver hkp://keyserver.ubuntu.com --search-key 'your@mail.com'
 
-5) Update your ~.m2/settings.xml
+5) Update your ~/.m2/settings.xml like below
+
+<settings>
+  <servers>
+    <server>
+      <id>ossrh</id>
+      <username>febialfarabi</username>
+      <password>Gioibanez.1q2w3e4r</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>ossrh</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.passphrase>gioibanez</gpg.passphrase>
+      </properties>
+    </profile>
+  </profiles>
+</settings>
+
 
 6) Update your project pom.xml
 
